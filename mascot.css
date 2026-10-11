@@ -1,0 +1,18 @@
+/* mascot moods */
+#mascot { transform-origin: 50% 90%; }
+#mascot.idle { animation: bob 3s ease-in-out infinite; }
+#mascot.focus { animation: bob 5s ease-in-out infinite; }
+#mascot.rest #zzz { opacity: 1; animation: zz 2.4s ease-in-out infinite; }
+#mascot.cheer { animation: hop .5s ease-in-out 4; }
+.eye { transform-box: fill-box; transform-origin: center; animation: blink 4.5s infinite; }
+#mascot.focus .eye { transform: scaleY(.7); animation: none; }
+#mascot.rest .eye { transform: scaleY(.2); animation: none; }
+@keyframes bob { 0%,100% { transform: translateY(0) scale(1,1); } 50% { transform: translateY(-2px) scale(1.02,.98); } }
+@keyframes hop { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px) rotate(3deg); } }
+@keyframes blink { 0%,94%,100% { transform: scaleY(1); } 97% { transform: scaleY(.1); } }
+@keyframes zz { 0%,100% { transform: translateY(0); opacity: .4; } 50% { transform: translateY(-5px); opacity: 1; } }
+
+
+/* accessories */
+.acc { display: none; }
+.acc.on { display: inline; }

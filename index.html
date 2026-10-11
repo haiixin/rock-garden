@@ -1,0 +1,108 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'">
+<title>Rock Garden</title>
+<link rel="stylesheet" href="mascot.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <header id="titlebar">
+    <div class="tb-btns left">
+      <button id="btn-pet" title="Let the rock out on your desktop">🪨</button>
+      <button id="btn-shop" title="Shop">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l1.5-5h15L21 9"/>
+          <path d="M3 9c0 1.7 1.3 3 3 3s3-1.3 3-3c0 1.7 1.3 3 3 3s3-1.3 3-3c0 1.7 1.3 3 3 3s3-1.3 3-3"/>
+          <path d="M5 12v8h14v-8"/>
+          <path d="M10 20v-4.5h4V20"/>
+        </svg>
+      </button>
+    </div>
+    <span class="brand">Rock Garden</span>
+    <div class="tb-btns">
+      <button id="btn-pin" title="Always on top" class="on">📌</button>
+      <button id="btn-min" title="Minimize">–</button>
+      <button id="btn-compact" title="Compact mode">▁</button>
+      <button id="btn-close" title="Quit">✕</button>
+    </div>
+  </header>
+
+  <!-- ===== main screen ===== -->
+  <div id="screen-main" class="screen">
+    <section id="top">
+      <div id="mascot-wrap">
+        <div id="bubble">Hi! Ready to focus?</div>
+        <div id="mascot-slot"></div>
+      </div>
+
+      <div id="timer-wrap">
+        <div id="modes">
+          <button data-mode="focus" class="active">Focus</button>
+          <button data-mode="short">Short</button>
+          <button data-mode="long">Long</button>
+        </div>
+        <div id="time">25:00</div>
+        <div id="controls">
+          <button id="btn-start" class="primary">Start</button>
+          <button id="btn-reset" title="Reset">↺</button>
+          <button id="btn-skip" title="Skip">⏭</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="points">
+      <div class="pt-row">
+        <span id="level">Lv 1</span>
+        <span id="pts">🪙 0</span>
+        <span id="today">Today: 0 🍅</span>
+      </div>
+      <div id="bar"><div id="bar-fill"></div></div>
+    </section>
+
+    <section id="todos">
+      <form id="todo-form">
+        <input id="todo-input" type="text" placeholder="Add a task…  (+5 coins when done)" maxlength="80" autocomplete="off">
+      </form>
+      <ul id="todo-list"></ul>
+      <div id="todo-foot"><button id="clear-done">Clear done</button></div>
+    </section>
+  </div>
+
+  <!-- ===== shop screen ===== -->
+  <div id="screen-shop" class="screen" hidden>
+    <div id="shop-head">
+      <button id="shop-back">← Back</button>
+      <span id="shop-title">Shop</span>
+      <span id="shop-bal">🪙 0</span>
+    </div>
+    <div id="shop-preview"></div>
+    <div id="shop-tabs">
+      <button data-cat="hat" class="active">Accessories</button>
+      <button data-cat="color">Color</button>
+      <button data-cat="theme">Theme</button>
+      <button data-cat="prize">My prizes</button>
+    </div>
+    <form id="prize-form" hidden>
+      <input id="prize-name" type="text" placeholder="Prize, e.g. New headphones" maxlength="40" autocomplete="off">
+      <input id="prize-price" type="number" min="1" max="99999" placeholder="🪙" autocomplete="off">
+      <button class="primary" type="submit">Add</button>
+    </form>
+    <div id="shop-grid"></div>
+  </div>
+
+  <!-- ===== purchase confirmation ===== -->
+  <div id="receipt" hidden>
+    <div id="rc-head"></div>
+    <div id="rc-ico"></div>
+    <div id="rc-name"></div>
+    <div id="rc-sub"></div>
+    <div id="rc-hint">Click anywhere to exit</div>
+  </div>
+</div>
+<script src="mascot.js"></script>
+<script src="renderer.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "rock-garden",
+  "version": "1.0.0",
+  "description": "A tiny floating productivity companion: pomodoro, mascot, to-dos, points.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^33.0.0"
+  }
+}
