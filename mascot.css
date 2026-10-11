@@ -1,3 +1,5 @@
+@font-face { font-family: "Geist"; src: url("fonts/geist-latin-wght-normal.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+
 /* mascot moods */
 #mascot { transform-origin: 50% 90%; }
 #mascot.idle { animation: bob 3s ease-in-out infinite; }
@@ -16,3 +18,7 @@
 /* accessories */
 .acc { display: none; }
 .acc.on { display: inline; }
+
+@media (prefers-reduced-motion: reduce) {
+  #mascot, .eye, #mascot.rest #zzz { animation: none; }
+}

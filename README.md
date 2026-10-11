@@ -54,6 +54,8 @@ The window appears in the bottom-right corner of your primary display. It rememb
 | `index.html`, `style.css`, `renderer.js` | The main app: timer, to-dos, points, and shop |
 | `pet.html`, `pet.js` | The free-roaming desktop pet |
 | `mascot.js`, `mascot.css` | The rock's SVG artwork, moods, and animations |
+| `icons.js` | [Phosphor](https://phosphoricons.com) icon set (MIT) and shop accessory previews |
+| `fonts/` | Self-hosted Geist variable font (OFL) |
 
 ## License
 

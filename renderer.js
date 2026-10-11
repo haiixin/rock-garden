@@ -9,12 +9,12 @@ const todayKey = () => new Date().toISOString().slice(0, 10);
 
 // ---------- shop catalog ----------
 const SHOP = [
-  { id: 'party',   cat: 'hat', name: 'Party hat',  price: 30,  icon: '🎉' },
-  { id: 'flower',  cat: 'hat', name: 'Flower',     price: 20,  icon: '🌸' },
-  { id: 'bow',     cat: 'hat', name: 'Bow',        price: 25,  icon: '🎀' },
-  { id: 'glasses', cat: 'hat', name: 'Shades',     price: 40,  icon: '🕶️' },
-  { id: 'tophat',  cat: 'hat', name: 'Top hat',    price: 60,  icon: '🎩' },
-  { id: 'crown',   cat: 'hat', name: 'Crown',      price: 100, icon: '👑' },
+  { id: 'party',   cat: 'hat', name: 'Party hat',  price: 30,  icon: hatIcon('party') },
+  { id: 'flower',  cat: 'hat', name: 'Flower',     price: 20,  icon: hatIcon('flower') },
+  { id: 'bow',     cat: 'hat', name: 'Bow',        price: 25,  icon: hatIcon('bow') },
+  { id: 'glasses', cat: 'hat', name: 'Shades',     price: 40,  icon: hatIcon('glasses') },
+  { id: 'tophat',  cat: 'hat', name: 'Top hat',    price: 60,  icon: hatIcon('tophat') },
+  { id: 'crown',   cat: 'hat', name: 'Crown',      price: 100, icon: hatIcon('crown') },
 
   { id: 'granite', cat: 'color', name: 'Granite',     price: 0,  color: '#8d96a0' },
   { id: 'sand',    cat: 'color', name: 'Sandstone',   price: 40, color: '#c9a877' },
@@ -158,9 +158,9 @@ function addPoints(n) {
 function renderPoints() {
   const lvl = Math.floor(state.lifetime / POINTS_PER_LEVEL) + 1;
   $('level').textContent = 'Lv ' + lvl;
-  $('pts').textContent = '🪙 ' + state.points;
-  $('shop-bal').textContent = '🪙 ' + state.points;
-  $('today').textContent = 'Today: ' + (state.days[todayKey()] || 0) + ' 🍅';
+  $('pts').innerHTML = icon('coins', 14) + ' ' + state.points;
+  $('shop-bal').innerHTML = icon('coins', 14) + ' ' + state.points;
+  $('today').innerHTML = 'Today ' + icon('timer', 14) + ' ' + (state.days[todayKey()] || 0);
   $('bar-fill').style.width = ((state.lifetime % POINTS_PER_LEVEL) / POINTS_PER_LEVEL * 100) + '%';
   updateMoss();
   if (!$('screen-shop').hidden) renderShop();
@@ -220,7 +220,7 @@ function complete() {
     state.cycle += 1;
     const reward = POINTS.pomodoro + (timer.clean ? POINTS.cleanBonus : 0);
     const leveled = addPoints(reward);
-    cheer(leveled ? 'LEVEL UP! 🌿' : timer.clean ? `Uninterrupted! +${reward} coins` : `Done. +${reward} coins (no pauses = ${POINTS.pomodoro + POINTS.cleanBonus})`);
+    cheer(leveled ? 'Level up!' : timer.clean ? `Uninterrupted! +${reward} coins` : `Done. +${reward} coins (no pauses = ${POINTS.pomodoro + POINTS.cleanBonus})`);
     setMode(state.cycle % 4 === 0 ? 'long' : 'short');
   } else {
     cheer('Break over. Ready?');
@@ -291,6 +291,13 @@ function renderTodos() {
   ul.innerHTML = '';
   // open tasks first, done ones sink to the bottom
   const sorted = [...state.todos].sort((a, b) => a.done - b.done);
+  if (!sorted.length) {
+    const li = document.createElement('li');
+    li.className = 'empty-note';
+    li.textContent = 'No tasks yet. Add one above and earn coins for finishing it.';
+    ul.appendChild(li);
+    return;
+  }
   for (const t of sorted) {
     const li = document.createElement('li');
     li.className = t.done ? 'done' : '';
@@ -304,7 +311,8 @@ function renderTodos() {
     span.title = t.text;
     const del = document.createElement('button');
     del.className = 'del';
-    del.textContent = '✕';
+    del.innerHTML = icon('x', 12);
+    del.setAttribute('aria-label', 'Delete task');
     del.onclick = () => removeTodo(t.id);
     li.append(cb, span, del);
     ul.appendChild(li);
@@ -316,7 +324,7 @@ function toggleTodo(id) {
   t.done = !t.done;
   // points follow the checkbox so un-checking can't be farmed
   const leveled = addPoints(t.done ? POINTS.todo : -POINTS.todo);
-  if (t.done) cheer(leveled ? 'LEVEL UP! 🌿' : `Done! +${POINTS.todo} coins`);
+  if (t.done) cheer(leveled ? 'Level up!' : `Done! +${POINTS.todo} coins`);
   save();
   renderTodos();
 }
@@ -345,7 +353,8 @@ $('clear-done').onclick = () => {
 // ---------- window chrome ----------
 function applyCompact() {
   document.body.classList.toggle('compact', state.compact);
-  $('btn-compact').textContent = state.compact ? '▢' : '▁';
+  $('btn-compact').classList.toggle('on', state.compact);
+  $('btn-compact').title = state.compact ? 'Full size' : 'Compact mode';
 }
 function applyPin() { $('btn-pin').classList.toggle('on', state.pinned); }
 
@@ -397,7 +406,7 @@ function renderShop() {
 
     const ico = document.createElement('div');
     ico.className = 'ico';
-    if (item.icon) ico.textContent = item.icon;
+    if (item.icon) ico.innerHTML = item.icon;
     else {
       const sw = document.createElement('div');
       sw.className = 'swatch';
@@ -411,7 +420,7 @@ function renderShop() {
     const btn = document.createElement('button');
     if (!owned) {
       btn.className = 'buy';
-      btn.textContent = '🪙 ' + item.price;
+      btn.innerHTML = icon('coins', 13) + ' ' + item.price;
       btn.disabled = state.points < item.price;
       btn.onclick = () => buy(item);
     } else if (equipped) {
@@ -437,7 +446,7 @@ function showReceipt({ head, icon, swatch, name, sub }) {
   $('rc-sub').textContent = sub;
   const ico = $('rc-ico');
   ico.innerHTML = '';
-  if (icon) ico.textContent = icon;
+  if (icon) ico.innerHTML = icon;
   else {
     const sw = document.createElement('div');
     sw.className = 'swatch';
@@ -464,7 +473,7 @@ function renderPrizes(grid) {
 
     const ico = document.createElement('div');
     ico.className = 'ico';
-    ico.textContent = p.claimed ? '✅' : '🎁';
+    ico.innerHTML = icon(p.claimed ? 'check-circle' : 'gift', 26);
     const nm = document.createElement('div');
     nm.className = 'nm';
     nm.textContent = p.name;
@@ -477,13 +486,14 @@ function renderPrizes(grid) {
       btn.disabled = true;
     } else {
       btn.className = 'buy';
-      btn.textContent = 'Claim 🪙 ' + p.price;
+      btn.innerHTML = 'Claim ' + icon('coins', 13) + ' ' + p.price;
       btn.disabled = state.points < p.price;
       btn.onclick = () => claimPrize(p.id);
     }
     const rm = document.createElement('button');
     rm.className = 'rm';
-    rm.textContent = '✕';
+    rm.innerHTML = icon('x', 12);
+    rm.setAttribute('aria-label', 'Remove prize');
     rm.title = 'Remove';
     rm.onclick = () => { state.prizes = state.prizes.filter((x) => x.id !== p.id); save(); renderShop(); };
 
@@ -499,8 +509,8 @@ function claimPrize(id) {
   save();
   renderPoints();
   renderShop();
-  cheer(`Enjoy: ${p.name}! 🎁`);
-  showReceipt({ head: 'Prize claimed', icon: '🎁', name: p.name, sub: `−${p.price} 🪙 · ${state.points} left` });
+  cheer(`Enjoy: ${p.name}!`);
+  showReceipt({ head: 'Prize claimed', icon: icon('gift', 56), name: p.name, sub: `${p.price} coins spent, ${state.points} left` });
 }
 $('prize-form').onsubmit = (e) => {
   e.preventDefault();
@@ -527,7 +537,7 @@ function buy(item) {
   showReceipt({
     head: 'Purchased', icon: item.icon,
     swatch: item.color || `linear-gradient(135deg, ${item.bg} 50%, ${item.accent} 50%)`,
-    name: item.name, sub: `−${item.price} 🪙 · ${state.points} left`
+    name: item.name, sub: `${item.price} coins spent, ${state.points} left`
   });
 }
 function equip(item, remove = false) {
