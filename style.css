@@ -44,7 +44,7 @@ button.primary:hover { background: color-mix(in srgb, #fff 14%, var(--accent)); 
 #titlebar { -webkit-app-region: drag; display: flex; justify-content: space-between; gap: 6px; align-items: center; height: 32px; padding: 0 5px; background: var(--bar); flex: none; }
 .brand { font-size: 12px; font-weight: 500; color: var(--muted); }
 .tb-btns { -webkit-app-region: no-drag; display: flex; gap: 2px; }
-.tb-btns button { background: transparent; padding: 0; width: 26px; height: 24px; color: var(--muted); }
+.tb-btns button { background: transparent; padding: 0; width: 24px; height: 24px; color: var(--muted); }
 .tb-btns button:hover { background: var(--surface); color: var(--text); }
 #btn-pin:not(.on) { opacity: .45; }
 #btn-pin.on, #btn-compact.on { color: var(--accent); }
@@ -147,6 +147,17 @@ body.pet-out #top #mascot-wrap { display: none; }
 .item button.eq { background: var(--surface-hi); color: var(--text); }
 .item button.eq:hover { background: color-mix(in srgb, #fff 18%, var(--bg)); }
 .item button.on { background: transparent; color: var(--muted); }
+
+/* info / settings panel */
+#panel { position: absolute; inset: 0; z-index: 15; background: color-mix(in srgb, #000 70%, var(--bg)); display: flex; align-items: center; justify-content: center; padding: 14px; }
+#panel .card { background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 14px; width: 100%; font-size: 12px; line-height: 1.5; }
+#panel h2 { font-size: 14px; margin-bottom: 6px; }
+#panel ul { list-style: none; margin: 8px 0; }
+#panel li { padding: 2px 0; }
+#panel b { color: var(--accent); font-weight: 600; }
+#panel .muted { color: var(--muted); }
+#panel label { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; color: var(--muted); }
+#panel input[type=range] { accent-color: var(--accent); width: 100%; }
 
 /* purchase confirmation overlay */
 #receipt { position: absolute; inset: 0; z-index: 20; background: color-mix(in srgb, #000 78%, var(--bg)); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; padding: 16px; cursor: pointer; animation: rc-in .2s var(--ease); }

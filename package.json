@@ -4,9 +4,29 @@
   "description": "A tiny floating productivity companion: pomodoro, mascot, to-dos, points.",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "dist": "electron-builder --win"
   },
   "devDependencies": {
-    "electron": "^33.0.0"
+    "electron": "^33.0.0",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "com.haixin.rockgarden",
+    "productName": "Rock Garden",
+    "win": {
+      "target": [
+        "portable"
+      ]
+    },
+    "files": [
+      "**/*",
+      "!graphify-out/**",
+      "!.agents/**",
+      "!.claude/**",
+      "!out.txt",
+      "!skills-lock.json",
+      "!dist/**"
+    ]
   }
 }

@@ -42,6 +42,12 @@ function createWindow() {
 
 ipcMain.on('win:close', () => app.quit());
 ipcMain.on('win:minimize', () => win.minimize());
+// timer finished: un-minimize and raise the window without stealing keyboard focus
+ipcMain.on('win:alert', () => {
+  if (win.isMinimized()) win.restore();
+  win.showInactive();
+  win.moveTop();
+});
 ipcMain.on('win:pin', (_e, on) => win.setAlwaysOnTop(!!on, 'floating'));
 ipcMain.on('win:compact', (_e, compact) => {
   const [x, y] = win.getPosition();

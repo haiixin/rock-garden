@@ -3,6 +3,7 @@ contextBridge.exposeInMainWorld('win', {
   // main window chrome
   close: () => ipcRenderer.send('win:close'),
   minimize: () => ipcRenderer.send('win:minimize'),
+  alert: () => ipcRenderer.send('win:alert'),
   pin: (on) => ipcRenderer.send('win:pin', on),
   compact: (on) => ipcRenderer.send('win:compact', on),
 

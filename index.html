@@ -13,6 +13,8 @@
     <div class="tb-btns left">
       <button id="btn-pet" title="Let the rock out on your desktop" aria-label="Desktop pet"><span data-icon="paw-print"></span></button>
       <button id="btn-shop" title="Shop" aria-label="Shop"><span data-icon="storefront"></span></button>
+      <button id="btn-info" title="About" aria-label="About"><span data-icon="info"></span></button>
+      <button id="btn-settings" title="Settings" aria-label="Settings"><span data-icon="gear"></span></button>
     </div>
     <span class="brand">Rock Garden</span>
     <div class="tb-btns">
@@ -84,6 +86,27 @@
       <button class="primary" type="submit">Add</button>
     </form>
     <div id="shop-grid"></div>
+  </div>
+
+  <!-- ===== info / settings panel ===== -->
+  <div id="panel" hidden>
+    <div class="card" id="info">
+      <h2>Rock Garden</h2>
+      <p>Focus with a pomodoro timer, tick off tasks, and earn coins to dress up your rock.</p>
+      <ul>
+        <li><b>25 min focus</b> = 5 coins</li>
+        <li><b>No pauses</b> = +10 bonus (15 total)</li>
+        <li><b>Finished task</b> = 5 coins</li>
+        <li><b>Breaks</b> earn nothing</li>
+        <li><b>Every 50 coins earned</b> = a level (spending doesn't lower it)</li>
+      </ul>
+      <p class="muted">Spend coins in the shop on hats, colors, themes, or your own prizes.</p>
+    </div>
+    <div class="card" id="settings">
+      <h2>Settings</h2>
+      <label>Timer alarm volume <input id="vol-alarm" type="range" min="0" max="100"></label>
+      <label>Button sounds volume <input id="vol-sfx" type="range" min="0" max="100"></label>
+    </div>
   </div>
 
   <!-- ===== purchase confirmation ===== -->

@@ -38,6 +38,7 @@ const defaults = {
   owned: ['granite', 'night'],
   equipped: { ...DEFAULT_EQUIPPED },
   prizes: [],     // user-defined rewards: { id, name, price, claimed }
+  vol: { alarm: 100, sfx: 100 }, // 0-100 sliders
   todos: [], days: {}, compact: false, pinned: true, cycle: 0
 };
 let state = { ...defaults };
@@ -45,6 +46,7 @@ try {
   const loaded = JSON.parse(localStorage.getItem(SAVE_KEY) || '{}');
   state = { ...defaults, ...loaded };
   state.equipped = { ...DEFAULT_EQUIPPED, ...(loaded.equipped || {}) };
+  state.vol = { ...defaults.vol, ...(loaded.vol || {}) };
   if (loaded.lifetime === undefined) state.lifetime = state.points; // migrate v1 saves
 } catch {}
 const save = () => localStorage.setItem(SAVE_KEY, JSON.stringify(state));
@@ -215,6 +217,7 @@ function complete() {
   const wasFocus = timer.mode === 'focus';
   stop();
   beep();
+  window.win.alert();
   if (wasFocus) {
     state.days[todayKey()] = (state.days[todayKey()] || 0) + 1;
     state.cycle += 1;
@@ -237,7 +240,7 @@ function beep() {
       o.frequency.value = f; o.connect(g); g.connect(ctx.destination);
       const t = ctx.currentTime + i * 0.18;
       g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime(0.15, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(Math.max(0.0001, 0.15 * state.vol.alarm / 100), t + 0.02);
       g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
       o.start(t); o.stop(t + 0.18);
     });
@@ -256,7 +259,7 @@ function blip(freqs, dur = 0.07, vol = 0.08) {
       o.connect(g); g.connect(sfxCtx.destination);
       const t = sfxCtx.currentTime + i * dur;
       g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime(vol, t + 0.01);
+      g.gain.exponentialRampToValueAtTime(Math.max(0.0001, vol * state.vol.sfx / 100), t + 0.01);
       g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
       o.start(t); o.stop(t + dur + 0.02);
     });
@@ -369,6 +372,22 @@ $('btn-compact').onclick = () => {
   applyCompact();
   save();
 };
+
+// ---------- info / settings ----------
+function showPanel(which) {
+  const open = !$('panel').hidden && !$(which).hidden;
+  $('info').hidden = which !== 'info';
+  $('settings').hidden = which !== 'settings';
+  $('panel').hidden = open;
+}
+$('btn-info').onclick = () => showPanel('info');
+$('btn-settings').onclick = () => showPanel('settings');
+$('panel').onclick = (e) => { if (e.target === $('panel')) $('panel').hidden = true; };
+for (const [id, key] of [['vol-alarm', 'alarm'], ['vol-sfx', 'sfx']]) {
+  $(id).value = state.vol[key];
+  $(id).oninput = () => { state.vol[key] = Number($(id).value); save(); };
+  $(id).onchange = () => (key === 'alarm' ? beep() : blip([660])); // preview on release
+}
 
 // ---------- shop ----------
 let shopCat = 'hat';
