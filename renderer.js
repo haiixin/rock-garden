@@ -113,10 +113,9 @@ function applyLook() {
 let petOut = false;
 function syncPet(msg) { if (petOut) window.win.petSync(msg); }
 let launching = false;
-function setPetOut(on, announce = true) {
+function setPetOut(on, announce = true, drop = null) {
   petOut = on;
   state.petOut = on;
-  $('btn-pet').title = on ? 'Bring the rock back into the app' : 'Let the rock out on your desktop';
   save();
   // clicking the button (announce) makes the rock crouch and jump out of the app onto the desktop
   const wrap = document.querySelector('#top #mascot-wrap');
@@ -130,10 +129,10 @@ function setPetOut(on, announce = true) {
   launching = false;
   wrap.classList.remove('launch');
   document.body.classList.toggle('pet-out', on);
-  window.win.pet(on);
+  window.win.pet(on, drop && { drop });
   if (on && announce) say('Free at last! Drag me anywhere.', 4000);
 }
-$('btn-pet').onclick = () => { if (!launching) setPetOut(!petOut); };
+$('btn-pet').onclick = () => { if (!launching) setPetOut(false); };
 // the pet window asks for the full picture when it opens
 window.win.onPetNeedSync(() => {
   if (launching) {            // the pet has taken over: the in-app rock is gone
@@ -569,7 +568,47 @@ function equip(item, remove = false) {
 $('btn-shop').onclick = () => showScreen($('screen-shop').hidden ? 'shop' : 'main');
 $('shop-back').onclick = () => showScreen('main');
 document.querySelectorAll('#shop-tabs button').forEach((b) => (b.onclick = () => { shopCat = b.dataset.cat; renderShop(); }));
+// drag the rock out of the window and let go: it drops onto the desktop
+let rockDrag = null, rockDragged = false;
+const rockWrap = () => document.querySelector('#top #mascot-wrap');
+mascot.addEventListener('pointerdown', (e) => {
+  if (document.body.classList.contains('in-shop') || launching || petOut) return;
+  mascot.setPointerCapture(e.pointerId);
+  rockDrag = { sx: e.clientX, sy: e.clientY };
+  rockDragged = false;
+});
+mascot.addEventListener('pointermove', (e) => {
+  if (!rockDrag) return;
+  const dx = e.clientX - rockDrag.sx, dy = e.clientY - rockDrag.sy;
+  if (!rockDragged && Math.hypot(dx, dy) < 4) return;
+  rockDragged = true;
+  const w = rockWrap();
+  const out = e.clientX < 0 || e.clientY < 0 || e.clientX > innerWidth || e.clientY > innerHeight;
+  if (out && !rockDrag.spawned) {
+    // crossed the window edge: the rock becomes the desktop pet right away and stays in the hand
+    rockDrag.spawned = true;
+    w.style.transform = w.style.zIndex = '';
+    setPetOut(true, false, { x: e.screenX - 60, y: e.screenY - 47 }); // pet window is 120x95
+  }
+  if (rockDrag.spawned) {
+    window.win.petSync({ held: true, x: e.screenX - 60, y: e.screenY - 47 });
+  } else {
+    w.style.zIndex = 10;
+    w.style.transform = `translate(${dx}px, ${dy}px)`;
+  }
+});
+mascot.addEventListener('pointerup', () => {
+  if (!rockDrag) return;
+  const spawned = rockDrag.spawned;
+  rockDrag = null;
+  const w = rockWrap();
+  w.style.transform = w.style.zIndex = '';
+  if (spawned) window.win.petSync({ held: false }); // let go: gravity takes over
+});
 mascot.onclick = () => {
+  if (rockDragged) return; // the click that ends a drag isn't a click
+  // on the main page the rock jumps out; in the shop preview it just cheers
+  if (!document.body.classList.contains('in-shop')) { if (!launching && !petOut) setPetOut(true); return; }
   const lines = ['Rock solid!', 'You got this.', 'One thing at a time.', 'Hydrate!', 'Stretch your shoulders.', '...pet accepted.'];
   cheer(lines[Math.floor(Math.random() * lines.length)]);
 };

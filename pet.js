@@ -27,6 +27,14 @@ window.win.onSync((msg) => {
   if (msg.look) applyMascotLook(svg, msg.look);
   if (msg.mood) { mood = msg.mood; svg.setAttribute('class', mood); }
   if (msg.say) say(msg.say, msg.ms);
+  if (msg.held !== undefined) {       // still being dragged by the app window's pointer
+    dragging = msg.held;
+    if (msg.held) { x = msg.x; y = msg.y; vy = 0; flip.classList.remove('walk'); send(); }
+    else {
+      window.win.petInfo().then((i) => { if (i) area = i.area; });
+      actionUntil = Date.now() + 1500;
+    }
+  }
 });
 
 // ---------- behaviour: the rock does its own thing ----------
@@ -57,35 +65,45 @@ function pick() {
 }
 
 // ---------- jumping out of the app ----------
-// Starts on top of the in-app rock and flies in an arc down to the desktop floor.
-let jump = null;
-const JUMP_MS = 750;
-function startJump(target) {
-  jump = { t0: performance.now(), x0: x, y0: y, x1: target.x, y1: target.y,
-           lift: Math.max(70, Math.abs(target.y - y) * 0.25 + 70) };
-  dir = target.x >= x ? 1 : -1;
+// The window is oversized for the jump; the rock flies a parabolic arc inside it using a
+// transform on every animation frame, then the window shrinks back onto the landing spot.
+let jump = null, landing = false;
+const JUMP_MS = 800;
+const stage = $('stage');
+function startJump(launch, box) {
+  const t = launch.target;
+  jump = { t0: performance.now(), x0: launch.start.x, y0: launch.start.y, x1: t.x, y1: t.y, lift: launch.lift,
+           baseY: box.y + window.innerHeight - PH, boxX: box.x };
+  dir = t.x >= launch.start.x ? 1 : -1;
   flip.style.transform = `scaleX(${dir})`;
+  requestAnimationFrame(stepJump);
 }
-function stepJump() {
-  const t = Math.min(1, (performance.now() - jump.t0) / JUMP_MS);
-  const e = t * (2 - t) * 0.35 + t * 0.65;                 // slight ease-out on the horizontal travel
+function stepJump(now) {
+  if (!jump) return;
+  const t = Math.min(1, (now - jump.t0) / JUMP_MS);
+  const e = t * t * (3 - 2 * t);                            // smoothstep: eases in and out horizontally
   x = jump.x0 + (jump.x1 - jump.x0) * e;
   y = jump.y0 + (jump.y1 - jump.y0) * t - jump.lift * 4 * t * (1 - t);
+  stage.style.transform = `translate(${x - jump.boxX}px, ${y - jump.baseY}px)`;
   flip.style.transform = `scaleX(${dir}) rotate(${dir * 360 * t}deg)`;
-  if (t >= 1) {
-    jump = null;
+  if (t < 1) return requestAnimationFrame(stepJump);
+  x = jump.x1; y = jump.y1; jump = null; landing = true;
+  window.win.petSetPos(x, y);                               // shrink the window onto the rock...
+  window.win.petInfo().then((i) => {                        // ...and only then drop the offset
+    if (i) area = i.area;
+    stage.style.transform = '';
     flip.style.transform = `scaleX(${dir})`;
+    landing = false;
     vy = 0;
     anim('squash', 250);
     action = 'sit'; actionUntil = Date.now() + 1500;
     say('Free at last! Drag me anywhere.', 4000);
-  }
-  send();
+  });
 }
 
 function tick() {
   if (!area || dragging) return;
-  if (jump) { stepJump(); return; }
+  if (jump || landing) return;
   const floorY = area.y + area.height - PH;
 
   if (y < floorY) {                 // falling after being dropped
@@ -154,7 +172,7 @@ window.win.petInfo().then((info) => {
   if (!info) return;
   x = info.x; y = info.y; area = info.area;
   window.win.petReady();
-  if (info.launch) startJump(info.launch.target);
+  if (info.launch) startJump(info.launch, info);
   else say('Hi! Drag me anywhere.', 3500);
   setInterval(tick, TICK_MS);
   setInterval(() => window.win.petInfo().then((i) => { if (i && !dragging) area = i.area; }), 3000);

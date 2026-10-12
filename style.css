@@ -49,7 +49,7 @@ button.primary:hover { background: color-mix(in srgb, #fff 14%, var(--accent)); 
 #btn-pin:not(.on) { opacity: .45; }
 #btn-pin.on, #btn-compact.on { color: var(--accent); }
 #btn-close:hover { background: #b9444a; color: #fff; }
-body.in-shop #btn-shop, body.pet-out #btn-pet { color: var(--accent); }
+body.in-shop #btn-shop { color: var(--accent); }
 
 /* mascot + timer */
 #top { display: flex; align-items: center; gap: 10px; padding: 18px 12px 6px; flex: none; }
@@ -115,6 +115,11 @@ body.compact #bubble { display: none; }
 /* screens */
 .screen { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 body.pet-out #top #mascot-wrap { display: none; }
+/* while the rock is out, this stands in its place */
+#btn-pet { display: none; width: 104px; aspect-ratio: 1; flex: none; flex-direction: column; font-size: 11px; color: var(--muted); border: 1px dashed var(--line); }
+body.pet-out #top #btn-pet { display: flex; }
+body.compact #btn-pet { width: 70px; }
+body:not(.in-shop) #top #mascot { cursor: pointer; }
 /* anticipation before the rock jumps out of the app */
 #mascot-wrap.launch #mascot-slot { animation: crouch .22s ease-in forwards; transform-origin: 50% 100%; }
 @keyframes crouch { to { transform: scale(1.25, .6); } }
@@ -132,15 +137,15 @@ body.pet-out #top #mascot-wrap { display: none; }
 #shop-tabs button { flex: 1; font-size: 11px; background: transparent; color: var(--muted); padding: 4px 2px; }
 #shop-tabs button:hover { color: var(--text); }
 #shop-tabs button.active { background: var(--surface-hi); color: var(--text); }
-#shop-grid { flex: 1; min-height: 0; overflow-y: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 6px 12px 12px; align-content: start; }
-.item { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 9px 8px 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+#shop-grid { flex: 1; min-height: 0; overflow-y: auto; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); overflow-x: hidden; gap: 8px; padding: 6px 12px 12px; align-content: start; }
+.item { min-width: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 9px 8px 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .item.equipped { border-color: var(--accent); }
 .item .ico { height: 40px; display: flex; align-items: center; color: var(--muted); }
 /* accessories sit on a rock-grey chip so dark and white items both read */
 .item .ico .hat-svg { width: 52px; height: 40px; padding: 3px 6px; background: #8d96a0; border-radius: var(--r-sm); }
 .item .swatch { width: 26px; height: 26px; border-radius: 50%; border: 2px solid rgba(255,255,255,.25); }
 .item .nm { font-size: 12px; }
-.item button { width: 100%; font-size: 11px; padding: 4px 0; }
+.item button { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; font-size: 11px; padding: 4px 0; }
 .item button.buy { background: var(--accent); color: var(--on-accent); font-weight: 600; }
 .item button.buy:hover:not(:disabled) { background: color-mix(in srgb, #fff 14%, var(--accent)); }
 .item button.buy:disabled { background: var(--surface-hi); color: var(--muted); font-weight: 400; }

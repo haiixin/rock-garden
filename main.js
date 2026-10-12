@@ -61,7 +61,8 @@ ipcMain.on('win:compact', (_e, compact) => {
 const PET = { width: 120, height: 95 };
 let petWin = null;
 
-let petLaunch = null; // { target: {x, y} } while the rock is jumping out of the app
+let petLaunch = null; // { target, start, lift } while the rock is jumping out of the app
+let petBig = false;   // pet window is oversized (and click-through) for the jump
 
 // rect = the in-app rock's box in window coordinates; when given, the pet starts there and jumps out
 function openPet(rect) {
@@ -73,17 +74,27 @@ function openPet(rect) {
   if (x < area.x) x = mx + FULL.width;
   const floorY = area.y + area.height - PET.height;
   let startX = x, startY = floorY;
+  let bounds = { x, y: floorY, ...PET };
   petLaunch = null;
-  if (rect) {
+  if (rect && rect.drop) {
+    // dragged out of the window: start where it was let go, then gravity takes over
+    startX = Math.round(rect.drop.x); startY = Math.round(rect.drop.y);
+    bounds = { x: startX, y: startY, ...PET };
+  } else if (rect) {
     // the pet's rock is 50px wide, centred in its 120px window, feet on the window's bottom edge
     startX = Math.round(mx + rect.left + rect.width / 2 - PET.width / 2);
     startY = Math.round(my + rect.bottom - PET.height);
-    petLaunch = { target: { x, y: floorY } };
+    // The window covers the whole arc so the rock can be animated inside it at display
+    // rate (moving an OS window every frame is what made the jump choppy).
+    const lift = Math.max(70, Math.abs(floorY - startY) * 0.25 + 70);
+    const left = Math.min(startX, x), top = Math.min(startY, floorY) - lift - 40;
+    bounds = { x: left, y: top, width: Math.abs(startX - x) + PET.width,
+               height: Math.max(startY, floorY) + PET.height - top };
+    petLaunch = { target: { x, y: floorY }, start: { x: startX, y: startY }, lift };
+    petBig = true;
   }
   petWin = new BrowserWindow({
-    ...PET,
-    x: startX,
-    y: startY,
+    ...bounds,
     transparent: true,
     frame: false,
     hasShadow: false,
@@ -98,10 +109,12 @@ function openPet(rect) {
     }
   });
   petWin.setAlwaysOnTop(true, 'floating');
+  if (petBig) petWin.setIgnoreMouseEvents(true);
   petWin.loadFile('pet.html');
   petWin.on('closed', () => { petWin = null; });
 }
 function closePet() {
+  petBig = false;
   if (petWin) petWin.destroy();
   petWin = null;
 }
@@ -111,6 +124,7 @@ ipcMain.on('pet:sync', (_e, msg) => { if (petWin) petWin.webContents.send('pet:s
 ipcMain.on('pet:ready', () => { if (win) win.webContents.send('pet:need-sync'); });
 ipcMain.on('pet:go-home', () => { closePet(); if (win) win.webContents.send('pet:home'); });
 ipcMain.on('pet:setPos', (_e, x, y) => {
+  if (petBig && petWin) { petBig = false; petWin.setIgnoreMouseEvents(false); }
   if (petWin) petWin.setBounds({ x: Math.round(x), y: Math.round(y), width: PET.width, height: PET.height });
 });
 ipcMain.handle('pet:info', () => {
