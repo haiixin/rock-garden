@@ -1,0 +1,21 @@
+name: release
+on: push
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      # every push becomes a new, higher version so installed apps see it as an update
+      - run: npm version 1.0.${{ github.run_number }} --no-git-tag-version
+      - run: npx electron-builder --win --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

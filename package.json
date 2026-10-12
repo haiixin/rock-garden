@@ -5,7 +5,7 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "dist": "electron-builder --win"
+    "dist": "electron-builder --win --publish never"
   },
   "devDependencies": {
     "electron": "^33.0.0",
@@ -16,7 +16,7 @@
     "productName": "Rock Garden",
     "win": {
       "target": [
-        "portable"
+        "nsis"
       ]
     },
     "files": [
@@ -26,7 +26,17 @@
       "!.claude/**",
       "!out.txt",
       "!skills-lock.json",
-      "!dist/**"
-    ]
+      "!dist/**",
+      "!.github/**"
+    ],
+    "publish": {
+      "provider": "github",
+      "owner": "haiixin",
+      "repo": "rock-garden",
+      "releaseType": "release"
+    }
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.9"
   }
 }

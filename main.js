@@ -135,5 +135,9 @@ ipcMain.handle('pet:info', () => {
   return { x: b.x, y: b.y, area: screen.getDisplayMatching(b).workArea, launch };
 });
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  createWindow();
+  // installed builds pull the newest GitHub release on launch and swap in on next quit
+  if (app.isPackaged) require('electron-updater').autoUpdater.checkForUpdatesAndNotify().catch(() => {});
+});
 app.on('window-all-closed', () => app.quit());
