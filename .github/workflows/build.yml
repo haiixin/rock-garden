@@ -16,6 +16,10 @@ jobs:
       - run: npm ci
       # every push becomes a new, higher version so installed apps see it as an update
       - run: npm version 1.0.${{ github.run_number }} --no-git-tag-version
+      # GitHub rejects a published release whose tag doesn't exist yet
+      - run: |
+          git tag -f v1.0.${{ github.run_number }}
+          git push -f origin v1.0.${{ github.run_number }}
       - run: npx electron-builder --win --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
