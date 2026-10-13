@@ -19,8 +19,13 @@ function savePos() {
 
 function createWindow() {
   const area = screen.getPrimaryDisplay().workArea;
-  const saved = loadPos();
-  win = new BrowserWindow({
+  let saved = loadPos();
+  // a saved spot on a monitor that's no longer connected would open off-screen
+  if (saved && !screen.getAllDisplays().some(d => {
+    const b = d.workArea;
+    return saved.x >= b.x && saved.y >= b.y && saved.x + FULL.width <= b.x + b.width && saved.y + FULL.height <= b.y + b.height;
+  })) saved = null;
+  win =new BrowserWindow({
     ...FULL,
     x: saved ? saved.x : area.x + area.width - FULL.width - 20,
     y: saved ? saved.y : area.y + area.height - FULL.height - 20,
